@@ -28,7 +28,7 @@ jobs:
             --password "${{ secrets.WSFEED }}" 
             --store-password-in-clear-text
 
-      - run: dotnet fsi get-data.fsx
+      # - run: dotnet fsi get-data.fsx
 
       - run: dotnet build
         working-directory: Site
