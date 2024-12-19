@@ -1,0 +1,41 @@
+name: Build and Deploy
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+jobs:
+  build-and-deploy:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false 
+          submodules: true
+
+      - name: Build
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Add GitHub registry NuGet source
+        run: 
+          dotnet nuget 
+            add source https://nuget.pkg.github.com/dotnet-websharper/index.json 
+            --name github 
+            --username Jooseppi12 
+            --password "${{ secrets.WSFEED }}" 
+            --store-password-in-clear-text
+
+      - run: dotnet fsi get-data.fsx
+
+      - run: dotnet build
+        working-directory: Site
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: Site/bin/html
